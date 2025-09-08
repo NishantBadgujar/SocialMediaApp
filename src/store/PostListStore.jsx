@@ -3,6 +3,7 @@ import { createContext, useReducer } from "react";
 export const PostList = createContext({
     postList:[],
     addPost:()=>{},
+    addInitialPosts:()=>{},
     deletePost:()=>{}
 
 });
@@ -11,6 +12,9 @@ const postListReducer = (currPostList, action)=> {
     let newPostList = currPostList;
     if(action.type === "Delete_Post"){
         newPostList = currPostList.filter(post=> post.id !== action.payload.postId);
+    }
+    else if(action.type === "Add_Initial_Posts"){
+        newPostList =action.payload.posts;
     }
     else if(action.type === "Add_Post"){
         newPostList = [action.payload, ...currPostList];
@@ -35,6 +39,15 @@ const PostListProvider = ({children})=>{
         });
 
     };
+
+    const addInitialPosts = (posts) => {
+      dispatchPostList({
+        type: "Add_Initial_Posts",
+        payload: {
+            posts
+        }
+      });
+    };
     const deletePost =(postId)=>{
         dispatchPostList({
             type:"Delete_Post", 
@@ -44,32 +57,33 @@ const PostListProvider = ({children})=>{
             }
         })
     };
-    const [postList, dispatchPostList] = useReducer(postListReducer , default_Post_List);
+    const [postList, dispatchPostList] = useReducer(postListReducer , []);
 
     return(<PostList.Provider value={{
         postList: postList,
         addPost: addPost,
+        addInitialPosts: addInitialPosts,
         deletePost: deletePost
     }}>{children}</PostList.Provider>)
 }
 
-const default_Post_List = [
-    {
+// const default_Post_List = [
+//     {
 
-        id: "1",
-        title:"Going to Mumbai",
-        body:"I am goint to mumbai for my vacations",
-        reaction:2,
-        userId:"user-3",
-        tags: ["vacation", "Bombay"]
-    },
-    {
-    id: "2",
-        title:"Passed exams",
-        body:"I passed exams in one night study.",
-        reaction:15,
-        userId:"user-5",
-        tags: ["Exams", "Backbenchers"]
-    }
-]
+//         id: "1",
+//         title:"Going to Mumbai",
+//         body:"I am goint to mumbai for my vacations",
+//         reaction:2,
+//         userId:"user-3",
+//         tags: ["vacation", "Bombay"]
+//     },
+//     {
+//     id: "2",
+//         title:"Passed exams",
+//         body:"I passed exams in one night study.",
+//         reaction:15,
+//         userId:"user-5",
+//         tags: ["Exams", "Backbenchers"]
+//     }
+// ]
 export default PostListProvider;

@@ -1,18 +1,32 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Post from "./Post";
 import {PostList as PostListData} from "../store/PostListStore";
+import WelcomeMsg from "./WelcomeMsg";
+import LoadingSpinner from "./LoadingSpinner";
 const PostList = () => {
 
-  const { postList } = useContext(PostListData);
-  console.log(postList);
+  const { postList, addInitialPosts } = useContext(PostListData);
+
+  const [loadPosts, setLoadPosts] = useState(false);
+
+  useEffect(() => {
+    setLoadPosts(true);
+    fetch("https://dummyjson.com/posts")
+      .then((res) => res.json())
+      .then((obj) => {
+        addInitialPosts(obj.posts)
+        setLoadPosts(false);
+      });
+  }, []);
+  
+  // const onGetPostsFromServer = () =>{
+  // }
+  
   return (
     <>
-      <div className="post-list mt-5">
-
-        {postList.map((post) => <Post key={post.id} post={post}/>)}
-        
-        
-      </div>
+      {loadPosts && <LoadingSpinner />}
+      {!loadPosts && postList.length === 0 && <WelcomeMsg />}
+      {!loadPosts && postList.map((post) => <Post key={post.id} post={post} />)}
     </>
   );
 };
